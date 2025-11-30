@@ -177,6 +177,11 @@ const Invader = struct {
             );
         }
     }
+
+    pub fn update(self: *@This(), dx: f32, dy: f32) void {
+        self.position_x += dx;
+        self.position_y += dy;
+    }
 };
 
 pub fn main() void {
@@ -193,6 +198,10 @@ pub fn main() void {
     const invaderStartY = 50.0;
     const invaderSpacingX = 60.0;
     const invaderSpacingY = 40;
+    const invaderSpeed = 3.0;
+    const invaderMoveDelay = 30;
+    var invader_direction: f32 = 1.0; // 1 = right, -1 = left
+    var move_timer: i32 = 0;
 
     rl.initWindow(screenWidth, screenHeight, "InvaZoreZiG");
     defer rl.closeWindow();
@@ -246,6 +255,36 @@ pub fn main() void {
 
         for (&bullets) |*bullet| {
             bullet.update();
+        }
+
+        move_timer += 1;
+        if (move_timer >= invaderMoveDelay) {
+            move_timer = 0;
+
+            var hit_edge = false;
+
+            for (&invaders) |*row| {
+                for (row) |*invader| {
+                    if (invader.alive) {
+                        const next_x = invader.position_x + invaderSpeed * invader_direction;
+                        if (next_x < 0 or next_x + invader.width > @as(f32, @floatFromInt(screenWidth))) {
+                            hit_edge = true;
+                            break;
+                        }
+                    }
+                }
+                if (hit_edge) break;
+            }
+
+            if (hit_edge) {
+                invader_direction *= -1.0;
+            } else {
+                for (&invaders) |*row| {
+                    for (row) |*invader| {
+                        invader.update(invaderSpeed * invader_direction, 0);
+                    }
+                }
+            }
         }
 
         // DRAW
