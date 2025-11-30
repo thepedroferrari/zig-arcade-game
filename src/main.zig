@@ -33,9 +33,23 @@ const GameConfig = struct {
     invaderHeight: f32,
     invaderSpacingX: f32,
     invaderSpacingY: f32,
+};
 
-    pub fn hello() void {
-        @compileError("comptime msg: []const u8");
+const Player = struct {
+    position_x: f32,
+    position_y: f32,
+    width: f32,
+    height: f32,
+    speed: f32,
+
+    pub fn init(position_x: f32, position_y: f32, width: f32, height: f32) @This() {
+        return .{
+            .position_x = position_x,
+            .position_y = position_y,
+            .width = width,
+            .height = height,
+            .speed = 5.0,
+        };
     }
 };
 
@@ -45,6 +59,16 @@ pub fn main() void {
 
     rl.initWindow(screenWidth, screenHeight, "InvaZoreZiG");
     defer rl.closeWindow();
+
+    const playerWidth = 50.0;
+    const playerHeight = 30.0;
+
+    var player = Player.init(
+        @as(f32, @floatFromInt(screenWidth)) / 2 - playerWidth / 2,
+        @as(f32, @floatFromInt(screenHeight)) - 60.0,
+        playerWidth,
+        playerHeight,
+    );
 
     rl.setTargetFPS(60);
 
