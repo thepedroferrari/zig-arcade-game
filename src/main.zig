@@ -273,6 +273,7 @@ pub fn main() void {
     const enemyShootDelay = 60;
     const enemyShootChance = 5;
 
+    var game_over: bool = false;
     var invader_direction: f32 = 1.0; // 1 = right, -1 = left
     var move_timer: i32 = 0;
     var enemy_shoot_timer: i32 = 0;
@@ -318,6 +319,19 @@ pub fn main() void {
 
         rl.clearBackground(rl.Color.black);
 
+        if (game_over) {
+            rl.drawText("GAME OVER", 270, 250, 42, rl.Color.red);
+            const score_text = rl.textFormat("Final Score: %d", .{score});
+            rl.drawText(score_text, 285, 310, 30, rl.Color.white);
+            rl.drawText("Press [ENTER] to play again or [ESC] to quit", 180, 360, 20, rl.Color.green);
+
+            if (rl.isKeyPressed(rl.KeyboardKey.enter)) {
+                game_over = false;
+
+                // TODO: Reset game
+            }
+            continue;
+        }
         // UPDATE
         player.update();
 
@@ -356,7 +370,14 @@ pub fn main() void {
 
         for (&enemy_bullets) |*bullet| {
             bullet.update(screenHeight);
+            if (bullet.active) {
+                if (bullet.getRect().intersects(player.getRect())) {
+                    bullet.active = false;
+                    game_over = true;
+                }
+            }
         }
+
         enemy_shoot_timer += 1;
         if (enemy_shoot_timer >= enemyShootDelay) {
             enemy_shoot_timer = 0;
