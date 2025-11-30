@@ -68,6 +68,22 @@ const Player = struct {
         if (rl.isKeyDown(rl.KeyboardKey.down)) {
             self.position_y += self.speed;
         }
+
+        if (self.position_x <= 0) {
+            self.position_x = 0;
+        }
+
+        if (self.position_x + self.width >= @as(f32, @floatFromInt(rl.getScreenWidth()))) {
+            self.position_x = @as(f32, @floatFromInt(rl.getScreenWidth())) - self.width;
+        }
+
+        if (self.position_y <= 0) {
+            self.position_y = 0;
+        }
+
+        if (self.position_y + self.height >= @as(f32, @floatFromInt(rl.getScreenHeight()))) {
+            self.position_y = @as(f32, @floatFromInt(rl.getScreenHeight())) - self.height;
+        }
     }
 
     pub fn getRect(self: @This()) Rectangle {
