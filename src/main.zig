@@ -147,12 +147,52 @@ const Bullet = struct {
     }
 };
 
+const Invader = struct {
+    position_x: f32,
+    position_y: f32,
+    width: f32,
+    height: f32,
+    speed: f32,
+    alive: bool,
+
+    pub fn init(position_x: f32, position_y: f32, width: f32, height: f32) @This() {
+        return .{
+            .position_x = position_x,
+            .position_y = position_y,
+            .width = width,
+            .height = height,
+            .speed = 5.0,
+            .alive = true,
+        };
+    }
+
+    pub fn draw(self: @This()) void {
+        if (self.alive) {
+            rl.drawRectangle(
+                (@intFromFloat(self.position_x)),
+                @intFromFloat(self.position_y),
+                @intFromFloat(self.width),
+                @intFromFloat(self.height),
+                rl.Color.green,
+            );
+        }
+    }
+};
+
 pub fn main() void {
     const screenWidth = 800;
     const screenHeight = 600;
     const maxBullets = 10;
     const bulletWidth = 4.0;
     const bulletHeight = 10.0;
+    const invaderRows = 5;
+    const invaderCols = 11;
+    const invaderWidth = 40.0;
+    const invaderHeight = 30.0;
+    const invaderStartX = 100.0;
+    const invaderStartY = 50.0;
+    const invaderSpacingX = 60.0;
+    const invaderSpacingY = 40;
 
     rl.initWindow(screenWidth, screenHeight, "InvaZoreZiG");
     defer rl.closeWindow();
@@ -172,6 +212,15 @@ pub fn main() void {
         bullet.* = Bullet.init(0, 0, bulletWidth, bulletHeight);
     }
 
+    var invaders: [invaderRows][invaderCols]Invader = undefined;
+    for (&invaders, 0..) |*row, i| {
+        for (row, 0..) |*invader, j| {
+            const x = invaderStartX + @as(f32, @floatFromInt(j)) * invaderSpacingX;
+            const y = invaderStartY + @as(f32, @floatFromInt(i)) * invaderSpacingY;
+            invader.* = Invader.init(x, y, invaderWidth, invaderHeight);
+        }
+    }
+
     rl.setTargetFPS(60);
 
     while (!rl.windowShouldClose()) {
@@ -179,6 +228,8 @@ pub fn main() void {
         defer rl.endDrawing();
 
         rl.clearBackground(rl.Color.black);
+
+        // UPDATE
         player.update();
 
         if (rl.isKeyPressed(rl.KeyboardKey.space)) {
@@ -197,11 +248,20 @@ pub fn main() void {
             bullet.update();
         }
 
+        // DRAW
         player.draw();
 
         for (&bullets) |*bullet| {
             if (bullet.active) {
                 bullet.draw();
+            }
+        }
+
+        for (&invaders) |*row| {
+            for (row) |*invader| {
+                if (invader.alive) {
+                    invader.draw();
+                }
             }
         }
 
