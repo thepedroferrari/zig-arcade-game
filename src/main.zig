@@ -145,6 +145,15 @@ const Bullet = struct {
             );
         }
     }
+
+    pub fn getRect(self: @This()) Rectangle {
+        return .{
+            .x = self.position_x,
+            .y = self.position_y,
+            .width = self.width,
+            .height = self.height,
+        };
+    }
 };
 
 const Invader = struct {
@@ -182,6 +191,15 @@ const Invader = struct {
         self.position_x += dx;
         self.position_y += dy;
     }
+
+    pub fn getRect(self: @This()) Rectangle {
+        return .{
+            .x = self.position_x,
+            .y = self.position_y,
+            .width = self.width,
+            .height = self.height,
+        };
+    }
 };
 
 pub fn main() void {
@@ -198,8 +216,9 @@ pub fn main() void {
     const invaderStartY = 50.0;
     const invaderSpacingX = 60.0;
     const invaderSpacingY = 40;
-    const invaderSpeed = 3.0;
+    const invaderSpeed = 6.0;
     const invaderMoveDelay = 30;
+    const invaderDropDistance = 20;
     var invader_direction: f32 = 1.0; // 1 = right, -1 = left
     var move_timer: i32 = 0;
 
@@ -257,6 +276,22 @@ pub fn main() void {
             bullet.update();
         }
 
+        for (&bullets) |*bullet| {
+            if (bullet.active) {
+                for (&invaders) |*row| {
+                    for (row) |*invader| {
+                        if (invader.alive) {
+                            if (bullet.getRect().intersects(invader.getRect())) {
+                                bullet.active = false;
+                                invader.alive = false;
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
         move_timer += 1;
         if (move_timer >= invaderMoveDelay) {
             move_timer = 0;
@@ -278,6 +313,11 @@ pub fn main() void {
 
             if (hit_edge) {
                 invader_direction *= -1.0;
+                for (&invaders) |*row| {
+                    for (row) |*invader| {
+                        invader.update(0, invaderDropDistance);
+                    }
+                }
             } else {
                 for (&invaders) |*row| {
                     for (row) |*invader| {
