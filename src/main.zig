@@ -348,6 +348,6 @@ pub fn main() void {
 
         const score_text = rl.textFormat("Score: %d", .{score});
         rl.drawText(score_text, 10, screenHeight - 24, 20, rl.Color.white);
-        rl.drawText("Zig Invaders", 300, 250, 40, rl.Color.green);
+        rl.drawText("Zig Invaders: press [SPACE] to shoot, [ESC] to quit", 20, 20, 20, rl.Color.green);
     }
 }
