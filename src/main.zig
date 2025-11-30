@@ -221,6 +221,7 @@ pub fn main() void {
     const invaderDropDistance = 20;
     var invader_direction: f32 = 1.0; // 1 = right, -1 = left
     var move_timer: i32 = 0;
+    var score: i32 = 0;
 
     rl.initWindow(screenWidth, screenHeight, "InvaZoreZiG");
     defer rl.closeWindow();
@@ -284,6 +285,7 @@ pub fn main() void {
                             if (bullet.getRect().intersects(invader.getRect())) {
                                 bullet.active = false;
                                 invader.alive = false;
+                                score += 10;
                                 break;
                             }
                         }
@@ -344,6 +346,8 @@ pub fn main() void {
             }
         }
 
+        const score_text = rl.textFormat("Score: %d", .{score});
+        rl.drawText(score_text, 10, screenHeight - 24, 20, rl.Color.white);
         rl.drawText("Zig Invaders", 300, 250, 40, rl.Color.green);
     }
 }
